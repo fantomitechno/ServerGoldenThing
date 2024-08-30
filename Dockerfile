@@ -24,6 +24,6 @@ COPY --from=builder --chown=hono:nodejs /app/package.json /app/package.json
 
 USER hono
 ENV PORT=4321
-EXPOSE 3000
+EXPOSE 4321
 
 CMD ["node", "/app/dist/index.js"]
