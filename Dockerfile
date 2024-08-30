@@ -8,8 +8,8 @@ WORKDIR /app
 COPY package*json tsconfig.json src ./
 
 RUN npm install -g pnpm
-RUN pnpm ci && \
-    pnpm run build && \
+RUN pnpm i && \
+    pnpm build && \
     pnpm prune --production
 
 FROM base AS runner
