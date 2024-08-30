@@ -25,6 +25,9 @@ devDependencies:
   tsx:
     specifier: ^4.7.1
     version: 4.19.0
+  typescript:
+    specifier: ^5.5.4
+    version: 5.5.4
 
 packages:
 
@@ -341,6 +344,12 @@ packages:
       get-tsconfig: 4.8.0
     optionalDependencies:
       fsevents: 2.3.3
+    dev: true
+
+  /typescript@5.5.4:
+    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
+    engines: {node: '>=14.17'}
+    hasBin: true
     dev: true
 
   /undici-types@6.19.8:
