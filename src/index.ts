@@ -9,6 +9,7 @@ config();
 interface Status {
   done: boolean;
   failed: boolean;
+  username: string;
 }
 
 declare interface InternalEvent {
@@ -37,24 +38,14 @@ app.get("/ip", (c) => {
   return c.text(process.env.SERVER_IP ?? "");
 });
 
-app.post("/whitelist", async (c) => {
-  const data: { username: string } = await c.req.json();
-
-  const username = data["username"];
-  console.log("Whitelisting " + username);
-
-  internal.emit("whitelist", username);
-  return c.json({});
-});
-
 app.get(
   "/ws",
   upgradeWebSocket((c) => {
-    const type = c.req.queries("type");
     let messageReceiver: (data: Status) => void;
     let whitelistReceiver: (username: string) => void;
     return {
       onMessage(event, _) {
+        const type = c.req.queries("type");
         if (type && type[0] == "server") {
           internal.emit("message", JSON.parse(event.data as string));
         }
@@ -67,17 +58,25 @@ app.get(
           internal.removeListener("whitelist", whitelistReceiver);
       },
       onOpen(_, ws) {
+        const type = c.req.queries("type");
         if (type && type[0] === "server") {
           console.log("Server connected");
           whitelistReceiver = (username) => {
+            console.log("Whitelisting " + username);
             ws.send(username);
           };
           internal.on("whitelist", whitelistReceiver);
         } else {
           console.log("Client connected");
+          const username = c.req.queries("username");
+          if (!username || username.length != 1) return ws.close();
+          internal.emit("whitelist", username[0]);
           messageReceiver = (data) => {
+            console.log(`Sending ${JSON.stringify(data)}`);
+            if (data.username == username[0]) {
             ws.send(JSON.stringify(data));
             console.log(data);
+            }
           };
           internal.on("message", messageReceiver);
         }
