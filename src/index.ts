@@ -74,8 +74,8 @@ app.get(
           messageReceiver = (data) => {
             console.log(`Sending ${JSON.stringify(data)}`);
             if (data.username == username[0]) {
-            ws.send(JSON.stringify(data));
-            console.log(data);
+              ws.send(JSON.stringify(data));
+              console.log(data);
             }
           };
           internal.on("message", messageReceiver);
@@ -84,13 +84,12 @@ app.get(
     };
   })
 );
-
 const port = Number(process.env.PORT);
 console.log(`Server is running on port ${port}`);
 
 injectWebSocket(
-serve({
-  fetch: app.fetch,
-  port,
+  serve({
+    fetch: app.fetch,
+    port,
   })
 );
