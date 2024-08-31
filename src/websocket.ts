@@ -22,7 +22,7 @@ const serverWebsocketDefintion: (c: Context) => WSEvents | Promise<WSEvents> = (
     },
     onOpen(_, ws) {
       const key = c.req.queries("key");
-      if (key !== process.env.KEY) return ws.close();
+      if (key && key[0] !== process.env.KEY) return ws.close();
       console.log("Server connected");
       whitelistReceiver = (username) => {
         console.log("Whitelisting " + username);
