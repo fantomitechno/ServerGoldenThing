@@ -7,7 +7,7 @@ config();
 import {
   clientWebsocketDefinition,
   serverWebsocketDefintion,
-} from "./websocket";
+} from "./websocket.js";
 
 const app = new Hono();
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
