@@ -1,34 +1,28 @@
 import { Context } from "hono";
-import { WSEvents } from "hono/ws";
-import EventEmitter from "events";
+import { WSContext, WSEvents } from "hono/ws";
 
-class InternalEvent extends EventEmitter {}
+import { DefaultMessage, MessageType, WhitelistMessage } from "./types.js";
 
-const internal = new InternalEvent();
+const clientWebsockets: { [username: string]: WSContext | undefined } = {};
+let serverWebsocket: WSContext | null;
 
 const serverWebsocketDefintion: (c: Context) => WSEvents | Promise<WSEvents> = (
   c
 ) => {
-  let whitelistReceiver: (username: string) => void;
-
   return {
     onMessage(event, _) {
-      internal.emit("message", JSON.parse(event.data as string));
+      const data: DefaultMessage = JSON.parse(event.data as string);
+      clientWebsockets[data.username]?.send(event.data as string);
     },
     onClose(event, ws) {
       console.log("Server connection closed");
-      if (whitelistReceiver)
-        internal.removeListener("whitelist", whitelistReceiver);
+      serverWebsocket = null;
     },
     onOpen(_, ws) {
+      serverWebsocket = ws;
       const key = c.req.queries("key");
       if (!key || key[0] !== process.env.KEY) return ws.close();
       console.log("Server connected");
-      whitelistReceiver = (username) => {
-        console.log("Whitelisting " + username);
-        ws.send(username);
-      };
-      internal.on("whitelist", whitelistReceiver);
     },
   };
 };
@@ -36,25 +30,35 @@ const serverWebsocketDefintion: (c: Context) => WSEvents | Promise<WSEvents> = (
 const clientWebsocketDefinition: (
   c: Context
 ) => WSEvents | Promise<WSEvents> = (c) => {
-  const username = c.req.queries("username");
-  let messageReceiver: (data: StatusRequest) => void;
+  const queryUsername = c.req.queries("username");
+  if (!queryUsername || queryUsername.length != 1)
+    return {
+      onOpen(_, ws) {
+        console.log("Client without username logged in");
+        ws.close();
+      },
+    };
+
+  const username = queryUsername[0];
   return {
-    onClose(event, ws) {
-      console.log(`Client connection closed (${username?.at(0)})`);
-      if (messageReceiver) internal.removeListener("message", messageReceiver);
+    onClose(_, __) {
+      console.log(`Client connection closed (${username})`);
+      delete clientWebsockets[username];
     },
     onOpen(_, ws) {
-      if (!username || username.length != 1) return ws.close();
-      console.log("Client connected");
-      internal.emit("whitelist", username[0]);
-      messageReceiver = (data) => {
-        console.log(`Sending ${JSON.stringify(data)}`);
-        if (data.username == username[0]) {
-          ws.send(JSON.stringify(data));
-          console.log(data);
-        }
+      console.log(`Client connected (${username})`);
+      clientWebsockets[username] = ws;
+
+      const whitelistMessage: WhitelistMessage = {
+        type: MessageType.WHITELIST,
+        username,
       };
-      internal.on("message", messageReceiver);
+      serverWebsocket?.send(JSON.stringify(whitelistMessage));
+    },
+    onMessage(evt, ws) {
+      let data: DefaultMessage = JSON.parse(evt.data as string);
+      data.username = username;
+      serverWebsocket?.send(JSON.stringify(data));
     },
   };
 };

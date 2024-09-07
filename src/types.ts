@@ -1,24 +1,18 @@
-enum Status {
-  done,
-  failed,
+enum MessageType {
+  FLAG,
+  WHITELIST,
 }
 
-interface StatusRequest {
-  status: Status;
+interface DefaultMessage {
+  type: MessageType;
   username: string;
 }
 
-declare interface InternalEvent {
-  on(event: "message", listener: (data: StatusRequest) => void): this;
-  on(event: "whitelist", listener: (username: string) => void): this;
-  emit(event: "message", data: StatusRequest): boolean;
-  emit(event: "whitelist", username: string): boolean;
-  removeListener(
-    event: "message",
-    listener: (data: StatusRequest) => void
-  ): this;
-  removeListener(
-    event: "whitelist",
-    listener: (username: string) => void
-  ): this;
+interface FlagMessage extends DefaultMessage {
+  everestFlag: string;
+  enabled: boolean;
 }
+
+interface WhitelistMessage extends DefaultMessage {}
+
+export { MessageType, DefaultMessage, FlagMessage, WhitelistMessage };
