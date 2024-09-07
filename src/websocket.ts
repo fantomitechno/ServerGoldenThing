@@ -40,24 +40,43 @@ const clientWebsocketDefinition: (
     };
 
   const username = queryUsername[0];
+  let interval: NodeJS.Timeout;
+
   return {
     onClose(_, __) {
       console.log(`Client connection closed (${username})`);
+
+      // Clearing memory
       delete clientWebsockets[username];
+      clearInterval(interval);
     },
     onOpen(_, ws) {
       console.log(`Client connected (${username})`);
       clientWebsockets[username] = ws;
 
+      // Whitelist user
       const whitelistMessage: WhitelistMessage = {
         type: MessageType.WHITELIST,
         username,
       };
       serverWebsocket?.send(JSON.stringify(whitelistMessage));
+
+      // Setup PING intervale
+      const ping: DefaultMessage = {
+        type: MessageType.PING,
+        username,
+      };
+
+      interval = setInterval(() => {
+        ws.send(JSON.stringify(ping));
+      }, 10 * 1000);
     },
     onMessage(evt, ws) {
       let data: DefaultMessage = JSON.parse(evt.data as string);
       data.username = username;
+      if (data.type == MessageType.PING) {
+        return;
+      }
       serverWebsocket?.send(JSON.stringify(data));
     },
   };

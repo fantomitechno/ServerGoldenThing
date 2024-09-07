@@ -1,6 +1,7 @@
 enum MessageType {
   FLAG,
   WHITELIST,
+  PING,
 }
 
 interface DefaultMessage {
