@@ -82,4 +82,8 @@ const clientWebsocketDefinition: (
   };
 };
 
-export { serverWebsocketDefintion, clientWebsocketDefinition };
+const getUsers = () => {
+  return Object.keys(clientWebsockets);
+};
+
+export { serverWebsocketDefintion, clientWebsocketDefinition, getUsers };
