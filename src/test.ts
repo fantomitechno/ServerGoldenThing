@@ -36,6 +36,15 @@ ws.on("message", (data, isBinary) => {
       console.log(
         `Flag ${flag.everestFlag} got put to ${flag.enabled} by ${flag.username}`
       );
+
+      setTimeout(() => {
+        ws.send(
+          `{"type": 0, "everestFlag": "doors_test", "enabled": ${flag.enabled}, "username":"Steve"}`
+        );
+        console.log(
+          `Sending everestFlag "doors_test" with value ${flag.enabled}`
+        );
+      }, 5000);
       break;
     default:
       console.log(`Unrecognized message type: ${message.type}`);
