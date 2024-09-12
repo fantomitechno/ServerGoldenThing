@@ -1,6 +1,5 @@
 enum MessageType {
   FLAG,
-  WHITELIST,
   PING,
 }
 
@@ -14,6 +13,4 @@ interface FlagMessage extends DefaultMessage {
   enabled: boolean;
 }
 
-interface WhitelistMessage extends DefaultMessage {}
-
-export { MessageType, DefaultMessage, FlagMessage, WhitelistMessage };
+export { MessageType, DefaultMessage, FlagMessage };

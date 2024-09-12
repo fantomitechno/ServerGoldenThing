@@ -22,7 +22,7 @@ setTimeout(() => {
   status = !status;
 }, 5000);
 
-ws.on("message", (data, isBinary) => {
+ws.on("message", (data, _) => {
   const message: DefaultMessage = JSON.parse(data.toString());
 
   switch (message.type) {
@@ -46,8 +46,9 @@ ws.on("message", (data, isBinary) => {
         );
       }, 5000);
       break;
+
     default:
-      console.log(`Unrecognized message type: ${message.type}`);
+      console.log(`Unrecognized message type: ${message.type}\n${message}`);
       break;
   }
 });
