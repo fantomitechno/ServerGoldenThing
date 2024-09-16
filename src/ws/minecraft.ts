@@ -6,17 +6,17 @@ import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from ".";
 export const minecraftWSDefinition: (
   c: Context,
   key: string
-) => WSEvents | Promise<WSEvents> = (c, key) => {
+) => WSEvents | Promise<WSEvents> = (_c, key) => {
   return {
-    onMessage(event, _) {
+    onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
       getCelesteWS(key)?.send(JSON.stringify(data));
     },
-    onClose(event, ws) {
+    onClose(_event, _ws) {
       deleteMinecraftWS(key);
       console.log("Minecraft connection closed");
     },
-    onOpen(_, ws) {
+    onOpen(_event, ws) {
       addMinecraftWS(key, ws);
       console.log("Minecraft connected");
     },

@@ -1,24 +1,41 @@
 import { WSEvents } from "hono/ws";
 import { Context } from "vm";
-import { DefaultMessage } from "../types";
-import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from ".";
+import { DefaultMessage, MessageType } from "../types";
+import { addCelesteWS, deleteCelesteWS, getNextKey } from ".";
 
 export const celesteWSDefinition: (
-  c: Context,
-  key: string
-) => WSEvents | Promise<WSEvents> = (c, key) => {
+  c: Context
+) => WSEvents | Promise<WSEvents> = (_c) => {
+  const key = getNextKey();
+  if (!key)
+    return {
+      onOpen(_, ws) {
+        ws.close(1011, "No key available right now");
+      },
+    };
+
+  let pingInterval: NodeJS.Timeout;
   return {
-    onMessage(event, _) {
+    onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
-      getCelesteWS(key)?.send(JSON.stringify(data));
     },
-    onClose(event, ws) {
-      deleteMinecraftWS(key);
-      console.log("Server connection closed");
+    onClose(_event, _ws) {
+      deleteCelesteWS(key);
+      console.log("Celeste connection closed");
+
+      clearInterval(pingInterval);
     },
-    onOpen(_, ws) {
-      addMinecraftWS(key, ws);
-      console.log("Server connected");
+    onOpen(_event, ws) {
+      addCelesteWS(key, ws);
+      console.log("Celeste connected");
+
+      const pingMessage: DefaultMessage = {
+        type: MessageType.PING,
+        key,
+      };
+      pingInterval = setInterval(() => {
+        ws.send(JSON.stringify(pingMessage));
+      }, 5000);
     },
   };
 };

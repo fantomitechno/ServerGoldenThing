@@ -5,7 +5,7 @@ enum MessageType {
 
 interface DefaultMessage {
   type: MessageType;
-  username: string;
+  key: string;
 }
 
 interface FlagMessage extends DefaultMessage {

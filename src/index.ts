@@ -4,13 +4,10 @@ import { createNodeWebSocket } from "@hono/node-ws";
 import { config } from "dotenv";
 config();
 
-import {
-  clientWebsocketDefinition,
-  getUsers,
-  serverWebsocketDefintion,
-} from "./websocket.js";
 import { WSEvents } from "hono/ws";
 import { minecraftWSDefinition } from "./ws/minecraft.js";
+import { celesteWSDefinition } from "./ws/celeste.js";
+import { getCelesteUsers, getMinecraftUsers } from "./ws/index.js";
 
 const app = new Hono();
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
@@ -28,7 +25,10 @@ app.get("/ip-info", (c) => {
 });
 
 app.get("/clients", (c) => {
-  return c.json(getUsers());
+  return c.json({
+    celeste: getCelesteUsers(),
+    minecraft: getMinecraftUsers(),
+  });
 });
 
 app.get(
@@ -39,7 +39,7 @@ app.get(
 
     switch (type[0]) {
       case "celeste":
-        return serverWebsocketDefintion(c);
+        return celesteWSDefinition(c);
 
       case "minecraft":
         const key = c.req.queries("key");
