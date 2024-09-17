@@ -14,6 +14,8 @@ enum MessageType {
   TELEPORTATION = 30,
 
   KILL = 40,
+
+  OPENED = 51,
 }
 
 interface DefaultMessage {

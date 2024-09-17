@@ -29,6 +29,15 @@ export const celesteWSDefinition: (
       addCelesteWS(key, ws);
       console.log("Celeste connected");
 
+      const openedMessage: DefaultMessage = {
+        type: MessageType.OPENED,
+        key,
+      };
+      setTimeout(() => {
+        ws.send(JSON.stringify(openedMessage));
+        console.log(openedMessage);
+      }, 1000);
+
       const pingMessage: DefaultMessage = {
         type: MessageType.PING,
         key,
