@@ -1,12 +1,13 @@
 import { WSEvents } from "hono/ws";
 import { Context } from "vm";
-import { DefaultMessage } from "../types";
+import { DefaultMessage, MessageType, UsernameMessage } from "../types";
 import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from ".";
 
 export const minecraftWSDefinition: (
   c: Context,
-  key: string
-) => WSEvents | Promise<WSEvents> = (_c, key) => {
+  key: string,
+  username: string
+) => WSEvents | Promise<WSEvents> = (_c, key, username) => {
   return {
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
@@ -19,6 +20,13 @@ export const minecraftWSDefinition: (
     onOpen(_event, ws) {
       addMinecraftWS(key, ws);
       console.log("Minecraft connected");
+
+      const message: UsernameMessage = {
+        key,
+        type: MessageType.MINECRAFT_USERNAME,
+        username,
+      };
+      getCelesteWS(key)?.send(JSON.stringify(message));
     },
   };
 };

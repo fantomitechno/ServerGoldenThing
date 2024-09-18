@@ -16,6 +16,7 @@ enum MessageType {
   KILL = 40,
 
   OPENED = 51,
+  MINECRAFT_USERNAME = 52,
 }
 
 interface DefaultMessage {
@@ -28,4 +29,8 @@ interface FlagMessage extends DefaultMessage {
   enabled: boolean;
 }
 
-export { MessageType, DefaultMessage, FlagMessage };
+interface UsernameMessage extends DefaultMessage {
+  username: string;
+}
+
+export { MessageType, DefaultMessage, FlagMessage, UsernameMessage };
