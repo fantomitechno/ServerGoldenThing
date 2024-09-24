@@ -1,7 +1,7 @@
 import { WSEvents } from "hono/ws";
 import { Context } from "vm";
 import { DefaultMessage, MessageType } from "../types";
-import { addCelesteWS, deleteCelesteWS, getNextKey } from ".";
+import { addCelesteWS, deleteCelesteWS, getMinecraftWS, getNextKey } from ".";
 
 export const celesteWSDefinition: (
   c: Context
@@ -18,6 +18,8 @@ export const celesteWSDefinition: (
   return {
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
+
+      getMinecraftWS(key)?.send(JSON.stringify(data));
     },
     onClose(_event, _ws) {
       deleteCelesteWS(key);
