@@ -19,6 +19,7 @@ export const celesteWSDefinition: (
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
 
+      console.log(data);
       getMinecraftWS(key)?.send(JSON.stringify(data));
     },
     onClose(_event, _ws) {
