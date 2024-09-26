@@ -40,6 +40,11 @@ export const celesteWSDefinition: (
         console.log(openedMessage);
       }, 1000);
 
+      setTimeout(() => {
+        ws.send(`{"type": 52, "key": "${key}", "username":"yo"}`);
+        console.log("t");
+      }, 2000);
+
       const pingMessage: DefaultMessage = {
         type: MessageType.PING,
         key,

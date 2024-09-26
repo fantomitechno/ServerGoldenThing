@@ -8,9 +8,14 @@ import { WSEvents } from "hono/ws";
 import { minecraftWSDefinition } from "./ws/minecraft.js";
 import { celesteWSDefinition } from "./ws/celeste.js";
 import { getCelesteUsers, getMinecraftUsers } from "./ws/index.js";
+import { serveStatic } from "hono/serve-static";
+import { readFileSync } from "node:fs";
 
 const app = new Hono();
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
+app.notFound((c) => {
+  return c.json({ message: "not found" });
+});
 
 app.get("/", (c) => {
   return c.text("Hello look at this cool API to link Celeste and Minecraft!");
@@ -30,6 +35,16 @@ app.get("/clients", (c) => {
     minecraft: getMinecraftUsers(),
   });
 });
+
+app.use(
+  "/portrait/*",
+  serveStatic({
+    root: "/",
+    getContent: async (path) => {
+      return readFileSync(path);
+    },
+  })
+);
 
 app.get(
   "/ws",
