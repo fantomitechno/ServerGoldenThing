@@ -8,8 +8,6 @@ import { WSEvents } from "hono/ws";
 import { minecraftWSDefinition } from "./ws/minecraft.js";
 import { celesteWSDefinition } from "./ws/celeste.js";
 import { getCelesteUsers, getMinecraftUsers } from "./ws/index.js";
-import { serveStatic } from "hono/serve-static";
-import { readFileSync } from "node:fs";
 
 const app = new Hono();
 const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app });
@@ -36,16 +34,6 @@ app.get("/clients", (c) => {
   });
 });
 
-app.use(
-  "/portrait/*",
-  serveStatic({
-    root: "/",
-    getContent: async (path) => {
-      return readFileSync(path);
-    },
-  })
-);
-
 app.get(
   "/ws",
   upgradeWebSocket((c) => {
@@ -67,6 +55,28 @@ app.get(
     }
   })
 );
+
+const visageHeaders = {
+  "User-Agent":
+    "ServerGoldenThing/2.0 (+https://simon.renoux.dev/projects/tgc; <simon@renoux.dev>)",
+};
+
+app.get("/portrait", async (c) => {
+  const username = c.req.queries("username");
+
+  const res = await fetch(`https://visage.surgeplay.com/bust/160/${username}`, {
+    headers: visageHeaders,
+  });
+
+  if (res.status == 404) {
+    const res = await fetch(`https://visage.surgeplay.com/bust/160/X-Steve`, {
+      headers: visageHeaders,
+    });
+    return c.newResponse(res.body);
+  }
+
+  return c.newResponse(res.body);
+});
 
 const closeWS: WSEvents = {
   onOpen(_, ws) {
