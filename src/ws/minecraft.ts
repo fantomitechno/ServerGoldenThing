@@ -16,6 +16,12 @@ export const minecraftWSDefinition: (
     onClose(_event, _ws) {
       deleteMinecraftWS(key);
       console.log("Minecraft connection closed");
+      const disconnectMessage: DefaultMessage = {
+        key,
+        type: MessageType.LOST_CONNECTION,
+      };
+
+      getCelesteWS(key)?.send(JSON.stringify(disconnectMessage));
     },
     onOpen(_event, ws) {
       addMinecraftWS(key, ws);
@@ -27,6 +33,12 @@ export const minecraftWSDefinition: (
         username,
       };
       getCelesteWS(key)?.send(JSON.stringify(message));
+
+      const openedMessage: DefaultMessage = {
+        key,
+        type: MessageType.OPENED,
+      };
+      ws.send(JSON.stringify(openedMessage));
     },
   };
 };

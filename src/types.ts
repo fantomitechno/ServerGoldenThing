@@ -10,6 +10,7 @@ enum MessageType {
   PING = 10,
 
   FLAG = 20,
+  DIALOG = 21,
 
   TELEPORTATION = 30,
 
@@ -17,6 +18,7 @@ enum MessageType {
 
   OPENED = 51,
   MINECRAFT_USERNAME = 52,
+  LOST_CONNECTION = 53,
 }
 
 interface DefaultMessage {
@@ -29,8 +31,18 @@ interface FlagMessage extends DefaultMessage {
   enabled: boolean;
 }
 
+interface DialogMessage extends DefaultMessage {
+  dialog: string;
+}
+
 interface UsernameMessage extends DefaultMessage {
   username: string;
 }
 
-export { MessageType, DefaultMessage, FlagMessage, UsernameMessage };
+export {
+  MessageType,
+  DefaultMessage,
+  FlagMessage,
+  DialogMessage,
+  UsernameMessage,
+};

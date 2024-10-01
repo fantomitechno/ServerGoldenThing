@@ -18,8 +18,6 @@ export const celesteWSDefinition: (
   return {
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
-
-      console.log(data);
       getMinecraftWS(key)?.send(JSON.stringify(data));
     },
     onClose(_event, _ws) {
@@ -27,6 +25,12 @@ export const celesteWSDefinition: (
       console.log("Celeste connection closed");
 
       clearInterval(pingInterval);
+      const disconnectMessage: DefaultMessage = {
+        key,
+        type: MessageType.LOST_CONNECTION,
+      };
+
+      getMinecraftWS(key)?.send(JSON.stringify(disconnectMessage));
     },
     onOpen(_event, ws) {
       addCelesteWS(key, ws);
@@ -38,13 +42,7 @@ export const celesteWSDefinition: (
       };
       setTimeout(() => {
         ws.send(JSON.stringify(openedMessage));
-        console.log(openedMessage);
-      }, 1000);
-
-      setTimeout(() => {
-        ws.send(`{"type": 52, "key": "${key}", "username":"yo"}`);
-        console.log("t");
-      }, 2000);
+      }, 500);
 
       const pingMessage: DefaultMessage = {
         type: MessageType.PING,
