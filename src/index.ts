@@ -46,9 +46,8 @@ app.get(
 
       case "minecraft":
         const key = c.req.queries("key");
-        const username = c.req.queries("username");
-        if (!key || !username) return closeWS;
-        return minecraftWSDefinition(c, key[0], username[0]);
+        if (!key) return closeWS;
+        return minecraftWSDefinition(c, key[0]);
 
       default:
         return closeWS;
