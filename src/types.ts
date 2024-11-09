@@ -11,6 +11,7 @@ enum MessageType {
 
   FLAG = 20,
   DIALOG = 21,
+  FLAG_BATCH = 22,
 
   TELEPORTATION = 30,
 
@@ -31,6 +32,10 @@ interface FlagMessage extends DefaultMessage {
   enabled: boolean;
 }
 
+interface FlagBatchMessage extends DefaultMessage {
+  flags: string[];
+}
+
 interface DialogMessage extends DefaultMessage {
   dialog: string;
 }
@@ -45,4 +50,5 @@ export {
   FlagMessage,
   DialogMessage,
   UsernameMessage,
+  FlagBatchMessage,
 };
