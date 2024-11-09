@@ -1,6 +1,6 @@
 import { WSEvents } from "hono/ws";
 import { Context } from "vm";
-import { DefaultMessage, MessageType, UsernameMessage } from "../types";
+import { DefaultMessage, MessageType } from "../types";
 import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from ".";
 
 export const minecraftWSDefinition: (
@@ -10,6 +10,7 @@ export const minecraftWSDefinition: (
   return {
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
+      if (data.type == MessageType.PING) return;
       getCelesteWS(key)?.send(JSON.stringify(data));
     },
     onClose(_event, _ws) {
