@@ -19,14 +19,6 @@ app.get("/", (c) => {
   return c.text("Hello look at this cool API to link Celeste and Minecraft!");
 });
 
-app.get("/ip", (c) => {
-  return c.text(process.env.SERVER_IP ?? "");
-});
-
-app.get("/ip-info", (c) => {
-  return c.text(process.env.SERVER_INFO ?? "");
-});
-
 app.get("/clients", (c) => {
   return c.json({
     celeste: getCelesteUsers(),
