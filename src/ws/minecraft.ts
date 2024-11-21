@@ -1,7 +1,7 @@
 import { WSEvents } from "hono/ws";
 import { Context } from "vm";
-import { DefaultMessage, MessageType } from "../types";
-import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from ".";
+import { DefaultMessage, MessageType } from "../types.js";
+import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from "./index.js";
 
 export const minecraftWSDefinition: (
   c: Context,
