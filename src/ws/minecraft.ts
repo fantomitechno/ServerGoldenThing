@@ -7,10 +7,15 @@ export const minecraftWSDefinition: (
   c: Context,
   key: string
 ) => WSEvents | Promise<WSEvents> = (_c, key) => {
+  let removeFromNoPingTimeout: NodeJS.Timeout;
+  let pingInterval: NodeJS.Timeout;
   return {
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
-      if (data.type == MessageType.PING) return;
+      if (data.type == MessageType.PING) {
+        clearTimeout(removeFromNoPingTimeout);
+        return;
+      }
       getCelesteWS(key)?.send(JSON.stringify(data));
     },
     onClose(_event, _ws) {
@@ -35,6 +40,17 @@ export const minecraftWSDefinition: (
         type: MessageType.OPENED,
       };
       ws.send(JSON.stringify(openedMessage));
+
+      const pingMessage: DefaultMessage = {
+        type: MessageType.PING,
+        key,
+      };
+      pingInterval = setInterval(() => {
+        ws.send(JSON.stringify(pingMessage));
+        removeFromNoPingTimeout = setTimeout(() => {
+          ws.close(1000, "Disconnected from no response");
+        }, 5000);
+      }, 10000);
     },
   };
 };

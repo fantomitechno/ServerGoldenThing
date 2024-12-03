@@ -19,11 +19,15 @@ export const celesteWSDefinition: (
       },
     };
 
+  let removeFromNoPingTimeout: NodeJS.Timeout;
   let pingInterval: NodeJS.Timeout;
   return {
     onMessage(event, _ws) {
       const data: DefaultMessage = JSON.parse(event.data as string);
-      if (data.type == MessageType.PING) return;
+      if (data.type == MessageType.PING) {
+        clearTimeout(removeFromNoPingTimeout);
+        return;
+      }
       getMinecraftWS(key)?.send(JSON.stringify(data));
     },
     onClose(_event, _ws) {
@@ -56,7 +60,10 @@ export const celesteWSDefinition: (
       };
       pingInterval = setInterval(() => {
         ws.send(JSON.stringify(pingMessage));
-      }, 5000);
+        removeFromNoPingTimeout = setTimeout(() => {
+          ws.close(1000, "Disconnected from no response");
+        }, 5000);
+      }, 10000);
     },
   };
 };
