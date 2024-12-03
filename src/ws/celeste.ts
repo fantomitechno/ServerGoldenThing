@@ -1,23 +1,29 @@
 import { WSEvents } from "hono/ws";
-import { Context } from "vm";
 import { DefaultMessage, MessageType } from "../types.js";
 import {
   addCelesteWS,
   deleteCelesteWS,
   getMinecraftWS,
   getNextKey,
+  pingTimeout,
 } from "./index.js";
+import { Context } from "hono";
+
+const ips: string[] = [];
 
 export const celesteWSDefinition: (
   c: Context
-) => WSEvents | Promise<WSEvents> = (_c) => {
+) => WSEvents | Promise<WSEvents> = (c) => {
   const key = getNextKey();
-  if (!key)
+  const ip = c.req.header("X-RealIP") ?? "";
+  if (!key || ip in ips)
     return {
       onOpen(_, ws) {
         ws.close(1011, "No key available right now");
       },
     };
+
+  ips.push(ip);
 
   let removeFromNoPingTimeout: NodeJS.Timeout;
   let pingInterval: NodeJS.Timeout;
@@ -34,6 +40,7 @@ export const celesteWSDefinition: (
       deleteCelesteWS(key);
       console.log("Celeste connection closed");
 
+      clearTimeout(removeFromNoPingTimeout);
       clearInterval(pingInterval);
       const disconnectMessage: DefaultMessage = {
         key,
@@ -41,6 +48,11 @@ export const celesteWSDefinition: (
       };
 
       getMinecraftWS(key)?.send(JSON.stringify(disconnectMessage));
+
+      const index = ips.indexOf(ip);
+      if (index > -1) {
+        ips.splice(index, 1);
+      }
     },
     onOpen(_event, ws) {
       addCelesteWS(key, ws);
@@ -62,8 +74,8 @@ export const celesteWSDefinition: (
         ws.send(JSON.stringify(pingMessage));
         removeFromNoPingTimeout = setTimeout(() => {
           ws.close(1000, "Disconnected from no response");
-        }, 5000);
-      }, 10000);
+        }, pingTimeout / 2);
+      }, pingTimeout);
     },
   };
 };

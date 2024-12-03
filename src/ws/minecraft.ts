@@ -1,7 +1,12 @@
 import { WSEvents } from "hono/ws";
-import { Context } from "vm";
 import { DefaultMessage, MessageType } from "../types.js";
-import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from "./index.js";
+import {
+  addMinecraftWS,
+  deleteMinecraftWS,
+  getCelesteWS,
+  pingTimeout,
+} from "./index.js";
+import { Context } from "hono";
 
 export const minecraftWSDefinition: (
   c: Context,
@@ -20,6 +25,8 @@ export const minecraftWSDefinition: (
     },
     onClose(_event, _ws) {
       deleteMinecraftWS(key);
+      clearTimeout(removeFromNoPingTimeout);
+      clearInterval(pingInterval);
       console.log("Minecraft connection closed");
       const disconnectMessage: DefaultMessage = {
         key,
@@ -49,8 +56,8 @@ export const minecraftWSDefinition: (
         ws.send(JSON.stringify(pingMessage));
         removeFromNoPingTimeout = setTimeout(() => {
           ws.close(1000, "Disconnected from no response");
-        }, 5000);
-      }, 10000);
+        }, pingTimeout / 2);
+      }, pingTimeout);
     },
   };
 };

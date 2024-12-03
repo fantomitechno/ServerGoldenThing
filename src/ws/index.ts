@@ -1,6 +1,8 @@
 import { WSContext } from "hono/ws";
 import { getFiveDigitStr } from "../utils.js";
 
+const pingTimeout = Number(process.env.PING_INTERVAL);
+
 const celesteWebsockets: { [key: string]: WSContext | undefined } = {};
 const minecraftWebsockets: { [key: string]: WSContext | undefined } = {};
 
@@ -48,4 +50,5 @@ export {
   getNextKey,
   getCelesteUsers,
   getMinecraftUsers,
+  pingTimeout,
 };
