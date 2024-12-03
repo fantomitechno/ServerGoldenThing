@@ -24,7 +24,11 @@ export const minecraftWSDefinition: (
       getCelesteWS(key)?.send(JSON.stringify(disconnectMessage));
     },
     onOpen(_event, ws) {
-      addMinecraftWS(key, ws);
+      try {
+        addMinecraftWS(key, ws);
+      } catch (error) {
+        ws.close(3000, "Unauthorized");
+      }
       console.log("Minecraft connected");
       const openedMessage: DefaultMessage = {
         key,

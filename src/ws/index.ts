@@ -9,6 +9,7 @@ const addCelesteWS = (key: string, ws: WSContext) => {
 };
 
 const addMinecraftWS = (key: string, ws: WSContext) => {
+  if (minecraftWebsockets[key] != null) throw Error();
   minecraftWebsockets[key] = ws;
 };
 
