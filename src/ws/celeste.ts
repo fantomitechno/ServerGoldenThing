@@ -5,7 +5,6 @@ import {
   deleteCelesteWS,
   getMinecraftWS,
   getNextKey,
-  pingTimeout,
 } from "./index.js";
 import { Context } from "hono";
 
@@ -14,6 +13,7 @@ const ips: string[] = [];
 export const celesteWSDefinition: (
   c: Context
 ) => WSEvents | Promise<WSEvents> = (c) => {
+  const pingTimeout = Number(process.env.PING_INTERVAL);
   const key = getNextKey();
   const ip = c.req.header("X-RealIP") ?? "";
   if (!key || ip in ips)
@@ -70,10 +70,12 @@ export const celesteWSDefinition: (
         type: MessageType.PING,
         key,
       };
+      console.log(pingTimeout);
       pingInterval = setInterval(() => {
         ws.send(JSON.stringify(pingMessage));
         removeFromNoPingTimeout = setTimeout(() => {
           ws.close(1000, "Disconnected from no response");
+          console.log("No PING response from Celeste");
         }, pingTimeout / 2);
       }, pingTimeout);
     },

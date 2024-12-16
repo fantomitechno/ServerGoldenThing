@@ -1,17 +1,13 @@
 import { WSEvents } from "hono/ws";
 import { DefaultMessage, MessageType } from "../types.js";
-import {
-  addMinecraftWS,
-  deleteMinecraftWS,
-  getCelesteWS,
-  pingTimeout,
-} from "./index.js";
+import { addMinecraftWS, deleteMinecraftWS, getCelesteWS } from "./index.js";
 import { Context } from "hono";
 
 export const minecraftWSDefinition: (
   c: Context,
   key: string
 ) => WSEvents | Promise<WSEvents> = (_c, key) => {
+  const pingTimeout = Number(process.env.PING_INTERVAL);
   let removeFromNoPingTimeout: NodeJS.Timeout;
   let pingInterval: NodeJS.Timeout;
   return {
