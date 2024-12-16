@@ -5,6 +5,7 @@ on:
     types: ["published"]
 
 env:
+  REGISTRY: git.gay
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -14,19 +15,23 @@ jobs:
       - name: Checkout repository
         uses: https://code.forgejo.org/actions/checkout@v4
 
-      - name: Log in to container registry
-        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login  -u ${{ github.repository_owner }} --password-stdin git.gay
-
-
-      - name: Build container
-        run: docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Log in to the Container registry
+        uses: https://github.com/docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: https://github.com/docker/metadata-action@v3
         with:
-          images: git.gay/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Push Docker image
-        run: |
-          docker push ${{ steps.meta.outputs.tags }}
+      - name: Build and push Docker image
+        uses: https://github.com/docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
