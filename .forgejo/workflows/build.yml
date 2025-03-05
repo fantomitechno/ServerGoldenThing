@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 jobs:
   build-and-push-image:
-    runs-on: fantom
+    runs-on: docker
     steps:
       - name: Checkout repository
         uses: https://code.forgejo.org/actions/checkout@v4
